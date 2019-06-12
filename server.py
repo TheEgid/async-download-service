@@ -41,6 +41,7 @@ async def make_zip_archive(request, delay, compression_ratio,
     logging.debug('Process PID={}'.format(zip_process.pid))
 
     response = web.StreamResponse()
+    response.enable_chunked_encoding()
     _headers = 'attachment; filename={}.zip'.format(archive_hash)
     response.headers['Content-Disposition'] = _headers
     await response.prepare(request)
@@ -50,7 +51,7 @@ async def make_zip_archive(request, delay, compression_ratio,
         while True:
             _chunk = await zip_process.stdout.read(chunk_size)
             counter += 1
-            logging.debug('Download chunk {}'.format(counter))
+            logging.debug('Download chunk {} - delay={}'.format(counter, delay))
             await response.write(_chunk)
             await asyncio.sleep(delay)
 
